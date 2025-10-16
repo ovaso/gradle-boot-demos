@@ -1,0 +1,7 @@
+spring:
+#  datasource:
+#    type: com.alibaba.druid.pool.DruidDataSource
+jimmer:
+  dialect: org.babyfish.jimmer.sql.dialect.MySqlDialect
+  database-validation:
+    schema: test

@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: test_demo
+  # datasource:
+  #   type: com.alibaba.druid.pool.DruidDataSource
+jimmer:
+  dialect: org.babyfish.jimmer.sql.dialect.MySqlDialect
+  show-sql: true
+  pretty-sql: true

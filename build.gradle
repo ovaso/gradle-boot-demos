@@ -1,0 +1,124 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '2.2.20' apply false
+    id 'org.jetbrains.kotlin.plugin.spring' version '2.2.20' apply false
+    id 'org.springframework.boot' version '3.5.6' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+    id 'com.google.devtools.ksp' version "2.2.20-2.0.4" apply false
+}
+
+group = 'x.bv.demos'
+version = '1.0.0'
+description = 'skeleton-1'
+
+ext {
+    datetimeFormat = DateTimeFormatter.ofPattern('yyMMdd')
+}
+
+subprojects {
+    group = 'x.bv.demos'
+    version = '0.0.1-SNAPSHOT'
+
+    apply plugin: 'org.jetbrains.kotlin.jvm'
+    apply plugin: 'org.jetbrains.kotlin.plugin.spring'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation 'org.jetbrains.kotlin:kotlin-reflect'
+        testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        annotationProcessor 'org.projectlombok:lombok'
+        implementation platform("org.springframework.boot:spring-boot-dependencies:3.5.6")
+        testImplementation 'org.instancio:instancio-junit:5.5.1'
+
+        annotationProcessor "org.mapstruct:mapstruct-processor:1.5.5.Final"
+        annotationProcessor "org.projectlombok:lombok"
+        annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
+
+        constraints {
+            implementation 'org.babyfish.jimmer:jimmer-spring-boot-starter:0.9.112'
+            annotationProcessor 'org.babyfish.jimmer:jimmer-apt:0.9.111'
+        }
+
+        if (project.name != 'module-common') {
+            annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+            implementation 'org.springframework.boot:spring-boot-starter-actuator'
+            developmentOnly 'org.springframework.boot:spring-boot-devtools'
+            testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        }
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
+    kotlin {
+        jvmToolchain(21)
+        compilerOptions {
+            freeCompilerArgs.addAll '-Xjsr305=strict', '-java-parameters'
+        }
+    }
+
+    // 配置源代码目录和资源目录
+    sourceSets.main.java.srcDirs = ['src/main/java', 'src/main/kotlin']
+    sourceSets.main.resources.srcDirs = ['src/main/resources']
+    sourceSets.test.java.srcDirs = ['src/test/java', 'src/test/kotlin']
+    sourceSets.test.resources.srcDirs = ['src/test/resources']
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs += ['-parameters']
+    }
+
+    tasks.named("jar") {
+        // 排除某个文件夹或文件
+        exclude("config/**")       // 排除 config 目录及子文件
+        exclude("**/*.bak")        // 排除所有 .bak 文件
+    }
+
+    tasks.named("bootJar") {
+        // 排除资源文件夹
+        exclude("config/**")
+        exclude("**/*.bak")
+
+        // from(sourceSets.main.output) {
+        //     // 只包含除 config 外的资源
+        //     exclude("config/**")
+        // }
+
+        archiveBaseName.set("${project.name}")
+        archiveVersion.set("${version}")
+        archiveClassifier.set(LocalDateTime.now().format(datetimeFormat))
+
+        // 自定义文件名格式
+        archiveFileName.set("${archiveBaseName.get()}_${archiveVersion.get()}_${archiveClassifier.get()}.jar")
+    }
+}
+
+tasks.configureEach {
+    // 阻止根项目产生 build 产物
+    if (project == rootProject) {
+        outputs.upToDateWhen { true }
+        doLast {
+            delete("$buildDir")
+        }
+    }
+}

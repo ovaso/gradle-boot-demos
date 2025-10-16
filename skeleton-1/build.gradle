@@ -1,0 +1,13 @@
+plugins {
+    id("com.google.devtools.ksp") version "2.2.20-2.0.4"
+}
+
+group = 'x.bv.demos.skeleton'
+version = '0.0.1-SNAPSHOT'
+
+dependencies {
+    testImplementation project(":module-test")
+    implementation 'org.babyfish.jimmer:jimmer-spring-boot-starter:0.9.111'
+//    annotationProcessor 'org.babyfish.jimmer:jimmer-apt:0.9.111' // java 用
+    ksp 'org.babyfish.jimmer:jimmer-ksp:0.9.111' // kotlin 用
+}
