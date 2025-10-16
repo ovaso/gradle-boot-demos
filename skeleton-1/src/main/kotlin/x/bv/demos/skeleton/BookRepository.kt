@@ -4,6 +4,9 @@ import org.babyfish.jimmer.sql.JSqlClient
 import org.springframework.stereotype.Repository
 
 @Repository
-class BookRepository(jSqlClient: JSqlClient) {
-//    private val bookTable: BookDraft
+class BookRepository(val jSqlClient: JSqlClient) {
+
+	fun save() {
+
+	}
 }
